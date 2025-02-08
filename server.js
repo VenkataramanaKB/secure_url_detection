@@ -5,13 +5,24 @@ const config = require('./config');
 const app = express();
 app.use(express.json());
 
+// Enable CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    next();
+});
+
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
 });
 
 // Phishing check endpoint
-app.post('/check-phishing', async (req, res) => {
+app.post('/api/check-phishing', async (req, res) => {
     try {
         const { url } = req.body;
         
@@ -22,7 +33,6 @@ app.post('/check-phishing', async (req, res) => {
         const result = await checkPhishing(url);
         res.json(result);
     } catch (error) {
-        console.error('Error:', error);
         res.status(500).json({ 
             error: 'Internal server error',
             message: error.message 
@@ -30,6 +40,5 @@ app.post('/check-phishing', async (req, res) => {
     }
 });
 
-app.listen(config.PORT, () => {
-    console.log(`Server running on port ${config.PORT}`);
-});
+// Remove the app.listen() call since Vercel handles this
+module.exports = app;
