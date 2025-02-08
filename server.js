@@ -27,15 +27,20 @@ app.post('/api/check-phishing', async (req, res) => {
         const { url } = req.body;
         
         if (!url) {
-            return res.status(400).json({ error: 'URL is required' });
+            return res.status(400).json({ 
+                error: 'Validation Error',
+                message: 'URL is required' 
+            });
         }
 
         const result = await checkPhishing(url);
         res.json(result);
     } catch (error) {
+        console.error('Error:', error);
         res.status(500).json({ 
             error: 'Internal server error',
-            message: error.message 
+            message: error.message,
+            timestamp: new Date().toISOString()
         });
     }
 });
